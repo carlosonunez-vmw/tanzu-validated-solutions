@@ -2,7 +2,7 @@
 
 > **Note**: this alternative networking implementation is intended for **testing purposes only**.
 
-vSphere distributed switches operate at Layer 2. Therefore, you might need to provision a router that can create the network above.
+vSphere distributed switches operate at Layer 2. Therefore, you might need to provision a router that can create the network in the guide that you are following.
 
 [Vyatta VyOS](https://vyos.io) is a lightweight network OS that provides packet forwarding and DHCP services. This section will guide you through setting up a simple Vyatta router in your lab that can simulate the reference architecture network diagram.
 
@@ -16,8 +16,36 @@ Out-of-scope alternatives:
 Ensure that this VM:
 
 * Has at least two vCPUs,
-* Has one NIC per port group created above (there should be six total), and
+* Has one NIC per port group created in the guide that you are following, and
 * That all NICs are para-virtual VMXNET NICs
+
+> If you have `govc` installed, you can use the command below to generate this
+> VM for your specific guide. For example, if you are using the
+> 'tko-with-vsphere' deployment guide, the command below will generate a VM
+> appropriate for this lab:
+>
+> ```sh
+> DEPLOYMENT_GUIDE="tko-with-sphere.md" # <-- change this
+> VM_NAME="tkg-router"
+> govc vm.create -annotation="TKG Networking Fabric" \
+>   -c=2 -iso=isos/vyos.iso \
+>   -m=2048 \
+>   -disk=20GB \
+>   -net="VM Network" \
+>   -net.adapter=vmxnet3 "$VM_NAME";
+> while read -r net; \
+> do \
+>   name="$(awk -F '|' '{print $3}' <<< "$net" | sed 's/management/mgmt/g' | tr -d ' ')"; \
+>   if test "$(wc -c <<< "$name")" -gt 12; then name=$(head -c 10 <<< "$name"); fi; \
+>   vlan="$(awk -F '|' '{print $4}' <<< "$net" | tr -d ' ')"; \
+>   cidr="$(awk -F '|' '{print $5}' <<< "$net" | sed -E 's/ +//' | tr -d ' ' | tr '/' '_')"; \
+>   cmd="govc host.portgroup.add -vswitch vSwitch0 ${name}-${cidr}-${vlan}"; \
+>   echo "--> $cmd"; \
+>   $cmd; \
+>   govc host.portgroup.change -allow-promiscuous=true -forged-transmits=true -mac-changes=true "${name}-${cidr}-${vlan}"; \
+>   govc vm.network.add -vm="$VM_NAME" -net="${name}-${cidr}-${vlan}" -net.adapter=vmxnet3; \
+> done < <(grep --color -E 'Network +\|.*_pg +\| [0-9]{4} +\| 172.*' "src/deployment-guides/${DEPLOYMENT_GUIDE}.md")
+> ```
 
 Next, go into the vCenter portal and connect to the VM's console. Log in with the username `vyos` and the password `vyos`.
 
