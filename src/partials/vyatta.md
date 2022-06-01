@@ -117,6 +117,29 @@ set interface eth1 address 172.16.10.1/24
 set interface eth1 description "nsx_alb_management_pg"
 ```
 
+> ✅ If you have `govc`, `jq` and `sshpass` installed, you can do this easily with
+> this block of code. This code assumes that your port groups were created using
+> the block of code above.
+>
+> ```sh
+> ifaces=$(sshpass -p vyos ssh vyos@10.220.3.252
+>   find /sys/class/net -mindepth 1 -maxdepth 1
+>   -not -name lo -printf "%P: " -execdir 'cat {}/address \;')
+> govc vm.info -json=true $VM_NAME |
+>   jq -r '.VirtualMachines[0].Config.Hardware.Device[] | \
+> select(.MacAddress != null and .DeviceInfo.Summary != "VM Network") | \
+> .MacAddress + ";" + .DeviceInfo.Summary' |
+>   while read -r line;
+>   do
+>     mac=$(echo "$line" | cut -f1 -d ';');
+>     pg=$(echo "$line" | cut -f2 -d ';');
+>     gw=$(echo "$pg" | cut -f2 -d '-' | cut -f1 -d '_');
+>     eth=$(grep "$mac" <<< "$ifaces" | cut -f1 -d ':');
+>     echo "set interface ethernet $eth ${gw}/27";
+>     echo "set interface ethernet description $pg";
+>   done
+> ```
+
 Run `show interface ethernet` once done. Confirm that your result looks something like
 the below:
 
