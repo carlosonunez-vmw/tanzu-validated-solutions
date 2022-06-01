@@ -125,26 +125,26 @@ Next, enable the DHCP service and create two DHCP pools:
 <!-- markdownlint-disable-->
 ```text
 set service dhcp-server dynamic-dns-update
-set service dhcp-server shared-network-name nsx-alb-mgmt-network subnet 172.16.80.0/24
-set service dhcp-server shared-network-name nsx-alb-mgmt-network subnet 172.16.80.0/24 default-router 172.16.80.1
-set service dhcp-server shared-network-name nsx-alb-mgmt-network subnet 172.16.80.0/24 range 0 start 172.16.80.200
-set service dhcp-server shared-network-name nsx-alb-mgmt-network subnet 172.16.80.0/24 range 0 stop 172.16.80.252
-set service dhcp-server shared-network-name nsx-alb-mgmt-network name-server 8.8.8.8
-set service dhcp-server shared-network-name nsx-alb-mgmt-network name-server 4.4.4.4
+set service dhcp-server shared-network-name nsx-alb-mgmt-network subnet 172.16.10.0/24
+set service dhcp-server shared-network-name nsx-alb-mgmt-network subnet 172.16.10.0/24 default-router 172.16.10.1
+set service dhcp-server shared-network-name nsx-alb-mgmt-network subnet 172.16.10.0/24 range 0 start 172.16.10.200
+set service dhcp-server shared-network-name nsx-alb-mgmt-network subnet 172.16.10.0/24 range 0 stop 172.16.10.252
+set service dhcp-server shared-network-name nsx-alb-mgmt-network name-server 10.220.3.251
+set service dhcp-server shared-network-name nsx-alb-mgmt-network name-server 10.79.2.5
 
-set service dhcp-server shared-network-name tkg-mgmt-network subnet 172.16.81.0/24
-set service dhcp-server shared-network-name tkg-mgmt-network subnet 172.16.81.0/24 default-router 172.16.81.1
-set service dhcp-server shared-network-name tkg-mgmt-network subnet 172.16.81.0/24 range 0 start 172.16.81.200
-set service dhcp-server shared-network-name tkg-mgmt-network subnet 172.16.81.0/24 range 0 stop 172.16.81.252
-set service dhcp-server shared-network-name tkg-mgmt-network name-server 8.8.8.8
-set service dhcp-server shared-network-name tkg-mgmt-network name-server 4.4.4.4
+set service dhcp-server shared-network-name tkg-mgmt-network subnet 172.16.40.0/24
+set service dhcp-server shared-network-name tkg-mgmt-network subnet 172.16.40.0/24 default-router 172.16.40.1
+set service dhcp-server shared-network-name tkg-mgmt-network subnet 172.16.40.0/24 range 0 start 172.16.40.200
+set service dhcp-server shared-network-name tkg-mgmt-network subnet 172.16.40.0/24 range 0 stop 172.16.40.252
+set service dhcp-server shared-network-name tkg-mgmt-network name-server 10.220.3.251
+set service dhcp-server shared-network-name tkg-mgmt-network name-server 10.79.2.5
 
-set service dhcp-server shared-network-name tkg-workload-network subnet 172.16.82.0/24
-set service dhcp-server shared-network-name tkg-workload-network subnet 172.16.82.0/24 default-router 172.16.82.1
-set service dhcp-server shared-network-name tkg-workload-network subnet 172.16.82.0/24 range 0 start 172.16.82.200
-set service dhcp-server shared-network-name tkg-workload-network subnet 172.16.82.0/24 range 0 stop 172.16.82.252
-set service dhcp-server shared-network-name tkg-workload-network name-server 8.8.8.8
-set service dhcp-server shared-network-name tkg-workload-network name-server 4.4.4.4
+set service dhcp-server shared-network-name tkg-workload-network subnet 172.16.60.0/24
+set service dhcp-server shared-network-name tkg-workload-network subnet 172.16.60.0/24 default-router 172.16.60.1
+set service dhcp-server shared-network-name tkg-workload-network subnet 172.16.60.0/24 range 0 start 172.16.60.200
+set service dhcp-server shared-network-name tkg-workload-network subnet 172.16.60.0/24 range 0 stop 172.16.60.252
+set service dhcp-server shared-network-name tkg-workload-network name-server 10.220.3.251
+set service dhcp-server shared-network-name tkg-workload-network name-server 10.79.2.5
 ```
 <!-- markdownlint-enable-->
 
