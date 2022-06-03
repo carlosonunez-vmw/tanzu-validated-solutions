@@ -36,7 +36,6 @@ The following table provides example entries for the required port groups. Creat
 > Layer 3 networking appliances that can create this networking schema, consider
 > emulating it with Vyatta! Learn more [here](./src/partials/vyatta.md)
 
-
 | Network Type                 | DHCP Service              | Description & Recommendations            |
 | ---------------------------- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | NSX ALB Management Network   | Optional                  | NSX ALB controllers and SEs will be attached to this network. <br> Use static IPs for the NSX ALB controllers. <br> The Service Engine’s management network can obtain IP from DHCP.                                                                                  |
