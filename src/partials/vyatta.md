@@ -152,17 +152,19 @@ ifaces=$(sshpass -p vyos ssh vyos@$VYOS_IP
   find /sys/class/net -mindepth 1 -maxdepth 1
   -not -name lo -printf "%P: " -execdir 'cat {}/address \;')
 govc vm.info -json=true $VM_NAME |
-  jq -r '.VirtualMachines[0].Config.Hardware.Device[] | \
-select(.MacAddress != null and .DeviceInfo.Summary != "VM Network") | \
+  jq -r '.VirtualMachines[0].Config.Hardware.Device[] |
+select(.MacAddress != null and .DeviceInfo.Summary != "VM Network") |
 .MacAddress + ";" + .DeviceInfo.Summary' |
   while read -r line;
   do
     mac=$(echo "$line" | cut -f1 -d ';');
     pg=$(echo "$line" | cut -f2 -d ';');
     gw=$(echo "$pg" | cut -f2 -d '-' | cut -f1 -d '_');
+    cidr=$(echo "$pg" | cut -f2 -d '-' | cut -f2 -d '_');
     eth=$(grep "$mac" <<< "$ifaces" | cut -f1 -d ':');
-    echo "set interface ethernet $eth ${gw}/27";
-    echo "set interface ethernet description $pg";
+    test "$eth" == "eth0" && continue;
+    echo "set interface ethernet $eth address ${gw}/${cidr}";
+    echo "set interface ethernet $eth description $pg";
   done
 ```
 >
@@ -171,10 +173,10 @@ If your NICs are connected to a distributed vSwitch, use this instead:
 ```sh
 VYOS_IP=10.220.8.189
 >&2 echo '---> Grabbing portgroup names';
-portgroupNamesToKeys=$(h2o_govc find / -type DistributedVirtualPortgroup | \
+portgroupNamesToKeys=$(govc find / -type DistributedVirtualPortgroup | \
   while read -r pg; \
   do \
-    h2o_govc object.collect -json=true "$pg" | jq -r '.[] |
+    govc object.collect -json=true "$pg" | jq -r '.[] |
 select(.Name == "config") | .Val.Key + ":" + .Val.Name'; \
   done
 );
@@ -182,7 +184,7 @@ select(.Name == "config") | .Val.Key + ":" + .Val.Name'; \
 ifaces=$(sshpass -p vyos ssh vyos@$VYOS_IP find /sys/class/net -mindepth 1 -maxdepth 1 \
   -not -name lo -printf "%P: " -execdir 'cat {}/address \;');
 >&2 echo '---> Forming vyos interface commands';
-h2o_govc vm.info -json=true $VM_NAME |
+govc vm.info -json=true $VM_NAME |
   jq -r '.VirtualMachines[0].Config.Hardware.Device[] |
 select(.MacAddress != null) |
 .MacAddress + ";" + .Backing.Port.PortgroupKey' |
@@ -192,10 +194,11 @@ select(.MacAddress != null) |
     pgKey=$(echo "$line" | cut -f2 -d ';');
     pg=$(grep -E "^$pgKey" <<< "$portgroupNamesToKeys" | cut -f2 -d ':');
     gw=$(echo "$pg" | cut -f2 -d '-' | cut -f1 -d '_');
+    cidr=$(echo "$pg" | cut -f2 -d '-' | cut -f2 -d '_');
     eth=$(grep "$mac" <<< "$ifaces" | cut -f1 -d ':');
     test "$eth" == "eth0" && continue;
-    echo "set interface ethernet $eth ${gw}/27";
-    echo "set interface ethernet description $pg";
+    echo "set interface ethernet $eth address ${gw}/${cidr}";
+    echo "set interface ethernet $eth description $pg";
   done
 ```
 
